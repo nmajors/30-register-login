@@ -3,7 +3,7 @@ class UserService {
     this._$q = $q;
 
     /* STEP 1 - ADD YOUR URL HERE */
-    this.ref = new Firebase("your firebase url");
+    this.ref = new Firebase("https://nms-profile.firebaseio.com/");
     this.auth = $firebaseAuth(this.ref);
   }
 
@@ -18,19 +18,41 @@ class UserService {
     and resolve this.user. If it fails, catch the error, and
     reject with the error.
   */
+//   authObj.$authWithPassword({
+//   email: "my@email.com",
+//   password: "mypassword"
+// }).then(function(authData) {
+//   console.log("Logged in as:", authData.uid);
+// }).catch(function(error) {
+//   console.error("Authentication failed:", error);
+// });
   login(user) {
     return new this._$q((resolve, reject) => {
+      this.auth.$authWithPassword(user)
+      .then((response) => {
+        this.user = response;
+        resolve(this.user);
+      })
+      .catch((error) => {
+        console.error("Error " + error);
+        reject(error);
+      });
     });
   }
 
   /* STEP 3 - Unauthorize the user. Firebase API docs! */
   logout() {
+    return this.auth.$unauth();
   }
 
   /* STEP 4 - Return an object representing a "new" user with
     a blanK email and password */
   new() {
-  }
+    return {
+      email: "",
+      password: ""
+      }
+    }
 
   /* STEP 5 - Below is a promise. Inside of it, use $createUser
     (FIREBASE DOCS!) to create the user with the information
@@ -44,9 +66,40 @@ class UserService {
   */
   create(user) {
     return new this._$q((resolve, reject) => {
-    });
+      console.log("creating");
+      this.auth.$createUser(user)
+      .then((response) => {
+        console.log("in response 1");
+        return this.auth.$authWithPassword(user);
+      })
+      .then((response) => {
+        console.log("in response 2");
+        this.user = response;
+        resolve(this.user);
+        console.log(this.user);
+      })
+      .catch((error) => {
+        console.error("Error " + error);
+        reject(error);
+      });
+    })
   }
-
 }
+//   $scope.authObj.$createUser({
+//     email: "my@email.com",
+//     password: "mypassword"
+//   }).then(function(userData) {
+//     console.log("User " + userData.uid + " created successfully!");
+//
+//     return $scope.authObj.$authWithPassword({
+//       email: "my@email.com",
+//       password: "mypassword"
+//     });
+//   }).then(function(authData) {
+//     console.log("Logged in as:", authData.uid);
+//   }).catch(function(error) {
+//     console.error("Error: ", error);
+//   });
+// }
 
 export default UserService;
