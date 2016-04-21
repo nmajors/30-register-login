@@ -2,6 +2,7 @@ class RegisterController {
   constructor($state, UserService) {
     this._$state = $state;
     this._UserService = UserService;
+    this.newUser = this._UserService.new();
 
     /* STEP 1 - Create a variable newUser and set it to
       our empty user object from the UserService */
@@ -13,6 +14,11 @@ class RegisterController {
   */
 
   register() {
+    this._UserService.create(this.newUser)
+      .then((response) =>{
+        console.log(response);
+        this._$state.go('profile');
+      })
   }
 }
 
